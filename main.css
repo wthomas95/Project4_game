@@ -1,0 +1,63 @@
+body{
+    background-color: yellow;
+    font-family: 'Nunito Semibold';
+    text-align: center;
+    color: white;
+}
+#content{
+    display: grid;
+    grid-template-columns: repeat(10, 1fr);
+    grid-template-rows: repeat(10, 1fr);
+    grid-gap: 10px;
+    max-width: 1000px;
+    max-height: 1000px;
+    margin: 0 auto;
+    height: 100vh;
+}
+#content div{
+    background: blue;
+    border-style: groove;
+    border-width: 5px;
+    box-shadow: 5px, 10px, black;
+    padding: 30px;
+}
+.inventory{
+    /* width */
+    grid-column-start: 1;
+    grid-column-end: 3;
+    /* height */
+    grid-row-start: 1;
+    grid-row-end: 7;
+}
+.game{
+    /* width */
+    grid-column-start: 3;
+    grid-column-end: 11;
+    /* height */
+    grid-row-start: 1;
+    grid-row-end: 7;
+}
+.itemStat{
+   /* width */
+   grid-column-start: 1;
+   grid-column-end: 4;
+   /* height */
+   grid-row-start: 7;
+   grid-row-end: 10;
+}
+.charStat{
+    /* width */
+    grid-column-start: 4;
+    grid-column-end: 8;
+    /* height */
+    grid-row-start: 7;
+   grid-row-end: 10;
+}
+.ot{
+    /* width */
+    grid-column-start: 8;
+    grid-column-end: 11;
+    /* height */
+    grid-row-start: 7;
+   grid-row-end: 10;
+}
