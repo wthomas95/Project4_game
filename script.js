@@ -27,36 +27,15 @@ const paths = [
     var expreq = 0; //experience required to level up
     var health = 100; //hit points
     //race
-    var orc = 0;
-    var elf = 0;
-    var dwarf = 0;
-    var human = 0;
-    //stats
-    var baseStrength = 3;
-    var basePerception = 3;
-    var baseEndurance = 3;
-    var baseCharisma = 3;
-    var baseIntelligence = 3;
-    var baseAgility = 3;
-    var baseLuck = 3;
-    //skills
-    var oneHanded = 15;
-    var twoHanded = 15;
-    var archery = 15;
-    var survival = 15;
-    var speech = 15;
-    var stealth = 15;
-    var magic = 15;
-    //inventory
-    var inventory = new list([]);
+    var orc = 0; //orcs use a hammer with extremely high damage, but medium chance to miss
+    var elf = 0; //elfs use a bow with lower damage, but two free attacks before enemies can close distance
+    var dwarf = 0; //dwarfs use a battleaxe with high damage, but a low chance to miss
+    var human = 0; //humans use a sword with average damage
+    
+    var tutorial = 0;
 
 function CharSetup()
 {
-    var orc = 0;
-    var elf = 0;
-    var dwarf = 0;
-    var human = 0;
-
     //choose race
     function racePick()
     {
@@ -85,113 +64,24 @@ function CharSetup()
         return human;
     }
 
-    //race impacts stats
-    //a humans base stats will all be 5
-    if (orc === 1) //orcs benefit from large stat increases in some areas, and suffer from large decreases in others
-    {
-        baseStrength += 2;
-        baseEndurance += 2;
-        baseIntelligence -= 2;
-        baseCharisma -= 2;
-    }
-    else if (dwarf === 1)//dwarfs have minor stat changes
-    {
-        baseEndurance += 2;
-        baseAgility -= 2;
-    }
-    else if(elf === 1) //elfs have the same magnitude of changes as orcs, but reversed
-    {
-        baseStrength -= 2;
-        baseEndurance -= 2;
-        baseIntelligence += 2;
-        baseCharisma += 2;
-    }
-
-    //stats
-    //base stats cap at 7
-    function statPick()
-    {
-        //display current base stats, and allow user to distribute 7 points through out
-        return baseStrength;
-        return basePerception;
-        return baseEndurance;
-        return baseCharisma;
-        return baseIntelligence;
-        return baseAgility;
-        return baseLuck;
-    }
-
-
-    //skills
-    //all stats are defaulted to 15
-    var oneHanded = 15;
-    var twoHanded = 15;
-    var archery = 15;
-    var survival = 15;
-    var speech = 15;
-    var stealth = 15;
-    var magic = 15;
-    //skills cap at 70
-    //skills can be improved in game
-
-    //stat modifiers
-    //each stat slightly modifies a skill
-    var relStrength = [oneHanded, twoHanded, survival];
-    var relPerception = [magic, archery, stealth];
-    var relEndurance = [survival, magic, twoHanded, health];
-    var relCharisma = [speech, magic];
-    var relIntelligence = [archery, magic, survival];
-    var relAgility = [oneHanded, stealth, archery];
-    var relLuck = [oneHanded, twoHanded, archery, survival, speech, stealth, magic];
-
-    function statsToSkills(relStrength, relPerception, relEndurance, relCharisma, relIntelligence, relAgility, relLuck){
-        //each point in a stat give + 3 to its relavent skills with two exceptions
-        for(var i = 0; i < baseStrength; i++)
-        {
-            relStrength = [oneHanded += 3, twoHanded += 3, survival += 3, health +=5];
-        }
-        //ex. a character with a baseStrength of 6 would get a +18 in all of the relative strength stats
-        for(var i = 0; i < basePerception; i++)
-        {
-            relPerception = [magic += 3, archery += 3, stealth += 3];
-        }
-        for(var i = 0; i < baseEndurance; i++)
-        {
-            var relEndurance = [survival += 3, magic += 3, twoHanded += 3];
-        }
-        //a point in charisma give plus 6 to speech
-        for(var i = 0; i < baseCharisma; i++)
-        {
-            var relCharisma = [speech += 6, magic += 3];
-        }
-        //a character with 6 in charis
-        for(var i = 0; i < baseIntelligence; i++)
-        {
-            var relIntelligence = [archery += 3, magic += 3, survival += 3];
-        }
-        for(var i = 0; i < baseAgility; i++)
-        {
-            var relAgility = [oneHanded += 3, stealth +=3, archery+=3];
-        }
-        //each point in luck gives an extra point in all stats
-        for(var i = 0; i < baseLuck; i++)
-        {
-            var relLuck = [oneHande++, twoHanded++, archery++, survival++, speech++, stealth++, magic++];
-        }
-    }//statsToSkills
 }//char set up
 
 //inventory
 var gameOver = 0;
-var weapon = "";
+var lives = 5;
+var bow = 0;
+var saber = 0;
+var hammer = 0;
+var axe = 0;
 var artifacts = 0;
 
-var enemyWeapon = "";
+var enemydamage = 0;
 var enemyHealth = 100;
 var bowupgrade = 0;
 var saberupgrade = 0;
 var axeupgrade = 0;
 var hammerupgrade = 0;
+var pickup = "";
 
 function gameinit(){
     if (orc === 1)
@@ -214,133 +104,145 @@ function gameinit(){
         //dwarf start
         weapon = "battleaxe"
     }
-}
-function damagecalc(weapon){
-    var damage = 0;
-    var stun = 0;
-    if (weapon === "bow" && bowupgrade === 0)
+    location = "OC";
+    while (gameOver === 0)
     {
-        //default elf weapon
-        //deny two turns for enemy from 'range'
-        if(enemyweapon != bow)
-        {
-            for(var i = 0; i > 2; i++)
+        function damagecalc(bow, saber, axe, hammer){
+            var damage = 0;
+            if (bow = 1 && bowupgrade === 0)
             {
-                damage = 5 * (.7 * archery);
+                //default elf weapon
+                damage = 5;
             }
-            damage = 4 * (.7 * onehanded);
-        }
-        else 
-        {
-            damage = 5 * (.7 * archery);       
-        }
-    }
-    if (weapon === "bow" && bowupgrade === 1)
-    {
-        //default elf weapon
-        //deny two turns for enemy from 'range'
-        if(enemyweapon != bow)
-        {
-            for(var i = 0; i > 2; i++)
+            if (bow === 1 && bowupgrade === 1)
             {
-                damage = 8 * (.7 * archery);
+                damage = 8;
             }
-            damage = 5 * (.7 * onehanded);
+            else if (axe = true && axeupgrade === 0)
+            {
+                //default dwarf weapon
+                damage = 10;
+            }
+            else if (axe === true && axeupgrade === 1)
+            {
+                damage = 15;
+            }
+            else if (saber === true && saberupgrade === 0)
+            {
+                //default human weapon
+                damage = 7;
+            }
+            else if (saber === true && saberupgrade === 1)
+            {
+                damage = 11;
+            }
+            else if (hammer === true && hammerupgrade === 0)
+            {
+                damage = 13;
+            }
+            else if (hammer === true && hammerupgrade === 1)
+            {
+                damage = 18;
+            }
+            return damage;
         }
-        else 
-        {
-            damage = 8 * (.7 * archery);       
+        
+        function combat(enemydamage, enemyHealth, health){
+            while (health > 0 && enemyHealth > 0)
+            {
+                reset = 0;
+                var damage1 = damagecalc(bow, saber, axe, hammer);
+                //calculating light/heavy attacks
+                //ask user to pick  light or heavy attack
+                var l = 0;//light attack
+                var h = 0;//heavy attack
+                var eMissCalc = 0;
+                var eMiss = 0;
+                var missCalc = 0;
+                var miss = 0;
+                if (l === 1)
+                {
+                    damage1 = damage1;
+                }
+                else if(h === 1)
+                {
+                    //heavy attack does 30% more damage with a 15% chance to miss
+                    missCalc = Math.random(1, 101);
+                    if (missCalc <= 15)
+                    {
+                        miss = 1;
+                    }
+                    else{
+                        damage1 = damage1 * 1.03
+                    }
+                }
+        
+                //determining if an axe or hammer attack will miss
+                if (axe === 1)
+                {
+                    //20% for axe to miss
+                    missCalc = Math.random(1, 6);
+                    if (missCalc === 1)
+                    {
+                        miss = 1;
+                    }
+                }
+                else if (hammer === 1)
+                {
+                    //25% for hammer to miss
+                    missCalc = Math.random(1, 5);
+                    if (missCalc === 1)
+                    {
+                        miss = 1;
+                    }
+                }
+        
+                //dealing damage
+                if (miss === 1)
+                {
+                    //you missed and did no damage
+                    damage1 = 0;
+                }
+                else if (miss === 0){
+                    //you hit and did damage
+                    enemyHealth = enemyHealth - damage1;
+                }
+                //calculate if the enemy did damage
+                //enemy will always have 20% chance to miss
+                eMissCalc = Math.random(1, 6);
+                if (eMissCalc === 1)
+                {
+                    eMiss = 1;
+                    enemydamage = 0;
+                }
+                else{
+                    health = health - enemydamage;
+                }
+                if (enemyHealth <= 0)
+                {
+                    health = 100;
+                    //you win
+                    return reset;
+                    break;
+                }
+                if (health <= 0)
+                {
+                    reset = 1;
+                    heath = 100;
+                    lives--;
+                    return reset;
+                    break;
+                }
+                if (lives === 0)
+                {
+                    gameOver = 1;
+                    break;
+                }
+            }
         }
     }
-    else if (weapon === "battleAxe" && axeupgrade === 0)
-    {
-        //default dwarf weapon
-        //20% chance to have to skip next turn
-        damage = 12 * (.7 * twohanded);
-        var stunChance = math.Random (1, 5);
-        if (stunChance === 1)
-        {
-            stun = 1;
-        }
-    }
-    else if (weapon === "battleAxe" && axeupgrade === 1)
-    {
-        //default dwarf weapon
-        //20% chance to have to skip next turn
-        damage = 18 * (.7 * twohanded);
-        var stunChance = math.Random (1, 5);
-        if (stunChance === 1)
-        {
-            stun = 1;
-        }
-    }
-    else if (weapon === "saber" && saberupgrade === 0)
-    {
-        //default human weapon
-        damage = 7 * (.7 * onehanded);
-    }
-    else if (weapon === "saber" && saberupgrade === 1)
-    {
-        damage = 10 * (.7 * onehanded);
-    }
-    else if (weapon === "warhammer" && hammerupgrade === 0)
-    {
-        //30% chance to have to skip next turn
-        damage = 15 * (.7 * twohanded);
-        var stunChance = math.Random (1, 4);
-        if (stunChance === 1)
-        {
-            stun = 1;
-        }
-    }
-    else if (weapon === "warhammer" && hammerupgrade === 1)
-    {
-        //30% chance to have to skip next turn
-        damage = 20 * (.7 * twohanded);
-        var stunChance = math.Random (1, 4);
-        if (stunChance === 1)
-        {
-            stun = 1;
-        }
-    }
-    return damage;
-    return stun;
 }
 
-function combat(enemyDamage, enemyHealth, health, weapon){
-    while (health > 0 && enemyHealth > 0)
-    {
-        run damagecalc(weapon);
-        //display your health and enemy health
-        //ASK USER TO SELECT LIGHT OR HEAVY ATTACK
-        //light attack does normal damage and is guaranteed to hit unless stunned
-        //heavy attack does 30% more damage, but gives a 20% chance to miss
-        var h = 0;
-        var l = 0;
-        var lohe = Math.Random(1, 11);
-        if (l === 1)
-        {
-            enemyHealth = enemyHealth - damage;
-        }
-        if (h === 1)
-        {
-            var hit = Math.Random(1, 6);
-            if (hit === 1)
-            {
-                //tell them they missed
-                enemyHealth = enemyHealth;
-            }
-            else{
-                enemyHealth = enemyHealth - (damage * 1.3)
-            }
-        }
-        if (health <= 0)
-        {
-            gameOver = 1;
-        }
-    }
-    
-}
 
 var location = "";
 
