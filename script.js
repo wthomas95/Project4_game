@@ -1,284 +1,197 @@
-//paths for main world between areas
-const paths = [
-    //Human Capitol Paths
-    "Capitol-HEV",
-    "Capitol-CC",
-    "Capitol-DTOW",
-    "Capitol-DC",
-    //Dwarf Capitol Paths
-    "DC-DTOW",
-    "DC-DTOE",
-    //DTOW (Dwarf Trade Oupost West) Paths
-    "DTOW-CC",
-    //HEV (Human/Elf Village) Paths
-    "HEV-CC",
-    "HEV-EC",
-    //EC (Elf Capitol) Paths
-    "EC, OC",
-    "EC-ECH",
-    //OC (Orc City) Paths
-    "OC-DTOW",
-    "OC-ECH"
-];
+var gameover = 0;
+let Character = {
+    race: "",
+    upgrade: false,
+    artifacts: [0, 0, 0],
+    health: 100,
+    missChance: 0,
+    damage: 7
+}
+let Enemy = {
+    name: "",
+    hp: 100,
+    damage: 0
+} 
+var b1 = document.getElementById("c1");
+var b2 = document.getElementById("c2");
+var b3 = document.getElementById("c3");
+var b4 = document.getElementById("c4");
+var header = document.getElementById("t");
+var description = document.getElementById("d");
+function GameStart(){
+    prelude();
+}
+function prelude(){
+    header.innerHTML = "Prelude";
+    description.innerHTML = "A description of the world and races: \n Orcs: Orcs are a more tribalistic people. They are large and stury, heavily muscled under green tinted hide. Large horns curl up above their heads. These hulks tend to lack finesse when it comes to combat, most warriors prefer to use hammers and other blunt weapons where they can use their great strength to the best effect.\n Dwarves: Dwarves are short, sturdy, and quite strong, though not so much as the orcs. Due to their stature, they are not typically as agile as humans or elves. Most Dwarven warriors prefer to use heavy battleaxes that require less finess than a sword or bow, but more than the Orcish warhammers.Their capitol is in a large mountain, hollowed out ages ago by their ancestors. Past their capitol, many smaller dwarf towns and cities exist, but non-dwarves rarely venture there due to the uncomfortably small tunnels that lead from their capitol to their other cities.\n Humans: Humans live in the north west of the continent. Humans have 3 major cities, a central capitol just north of the mountains leading to the dwarf capitol, a coastal city to the west, and a cooperative city with the elves to the north. Other small villages are dotted around the countryside.\n Elves: Elves are similar to size and strength as humans. They live in the northern forests, and are the most friendly to the orcs. Although it seems that the hyper-refinement of the elves would clash with the roughness of the dwarves, it seems that their shared love of wilderness has brought their races closer together.";
+    b1.innerHTML = "continue";
+    b1.addEventListener("click", CharSetup);
+}
+function CharSetup(){
+    b1.removeEventListener("click", CharSetup);
+    header.innerHTML = "Character Setup";
+    description.innerHTML = "Choose between an Orc, Dwarf, Elf, or Human. Orcs and Dwarfs do higher damage but have a chance to miss. Humans do medium damage with no advantages or drawbacks. Elfs do lower damage but get 3 free attacks before the enemy can engage.";
+    b1.addEventListener("click", setOrc);
+    b2.addEventListener("click", setElf);
+    b3.addEventListener("click", setHuman);
+    b4.addEventListener("click", setDwarf);
+    b1.innerHTML = "Orc";
+    b2.innerHTML = "Elf";
+    b3.innerHTML = "Human";
+    b4.innerHTML = "Dwarf";
+}
+function setOrc(){
+    Character.race = "orc";
+    console.log(Character.race);
+    loc1();
+}
+function setElf(){
+    Character.race = "elf";
+    console.log(Character.race);
+    loc1()
+}
+function setHuman(){
+    Character.race = "human";
+    console.log(Character.race);
+    loc1()
+}
+function setDwarf(){
+    Character.race = "dwarf";
+    console.log(Character.race);
+    loc1()
+}
+function loc1(){
+    removeListener();
+    header.innerHTML = "Orc Stronghold";
+    description.innerHTML = `You are a(n) ${Character.race}. The great cheiftain who governs the stronghold has conveined a council of peoples from all races. You sit in the room as people of all races file in. The last person to sit is a middle aged archaeologist, holding a large bundle of scrolls. At the behest of the cheiftain, the archaeologist stands and describes a failed expedition in the far east. An ancient monster was awoken by digging in an ancient tomb. The creature killed the guards and was only held back by a last minute spell that the mages of the expedition sacrificed themselves to cast, a spell so draining that it killed the mages casting it. The archaeologist warns that the spell won't hold for long, and that the only way to stop the monster is to use three ancient artifacts to drain the monster's power and imprison it in the tomb once again. The orc cheiftain stands, addressing warriors of each race in the room,asking who will take the task of finding the artifacts to force the monster back into the crypt.`;
+    b1.addEventListener("click", proceed);
+    b2.addEventListener("click", end);
+    b1.innerHTML = "Accept the Challenge";
+    b2.innerHTML = "Keep Your Silence";
+    b3.innerHTML = "";
+    b4.innerHTML = "";
+}
+function proceed(){
+    b1.removeEventListener("click", proceed);
+    b2.removeEventListener("click", end);
+    header.innerHTML = "Stronghold"
+    description.innerHTML = 'You stand and volunteer for the task, the cheiftain nods, and you leave the chambers, arming yourself as you go to search for the artifacts and fight the monster. As you leave the city, the archaeologist hurries up to you and tells you that you can likely find the artifacts in the human capitol, dwarven capitol, and human coastal city. You thank him for the information and proceed.. Where will you go now?';
+    b1.innerHTML = "Western Dwarven Trade Outpost";
+    b2.innerHTML = "Out to the Ruins.. Your final challenge awaits";
+    b3.innerHTML = "The Elven Capitol";
+    b4.innerHTML = "The Elf/Orc Cohabitation"
+    b1.addEventListener("click", OutWest);
+    b2.addEventListener("click", toBoss);
+    b3.addEventListener("click", ElfCity);
+    b4.addEventListener("click", Cohab);
+}
+function end(){
+    header.innerHTML = "The End";
+    description.innerHTML = "The council adjourns, and a young elf warrior has volunteered to undertake the task, you hope that he succeeds.";
+    b1.innerHTML = "";
+    b2.innerHTML = "";
+    b3.innerHTML = "";
+    b4.innerHTML = "";
+}
+function OutWest(){
 
-    //player gen info
-    var level = 0;
-    var exp = 0; //experience obtained
-    var expreq = 0; //experience required to level up
-    var health = 100; //hit points
-    //race
-    var orc = 0; //orcs use a hammer with extremely high damage, but medium chance to miss
-    var elf = 0; //elfs use a bow with lower damage, but two free attacks before enemies can close distance
-    var dwarf = 0; //dwarfs use a battleaxe with high damage, but a low chance to miss
-    var human = 0; //humans use a sword with average damage
-    
-    var tutorial = 0;
-
-function CharSetup()
-{
-    //choose race
-    function racePick()
+}
+function toBoss(){
+    header.innerHTML = "The monster stands in your path, frozen by a field of energy. It's glowing eyes glare down at you while its stony figure stands in front of you. Massive boulders make up its body, each suspended several feet apart by glowing orange energy."
+    if (Character.artifacts != [1, 1, 1])
     {
-        var choice = 0;
-        //ask for user choice
-        //get user choice
-        if (choice == 1)
-        {
-            orc = 1;
-        }
-        else if (choice == 2)
-        {
-            elf = 1;
-        }
-        else if (choice == 3)
-        {
-            dwarf = 1;
-        }
-        else if (choice == 4)
-        {
-            human = 1;
-        }
-        return orc;
-        return elf;
-        return dwarf;
-        return human;
+        description.innerHTML = "Without the artifacts in your posession, you are immediatly killed by the monster. Your presence without the ability to defeat him released the spell binding him, and he rampages through the land, destroying everything in his path.";
+    }
+    else if (Character.artifacts == [1, 1, 1]){
+        description.innerHTML = "You raise the artifacts and shout. A blinding light flashes between the golem and the artifacts. Massive amounts of orange energy flow from the monster into the artifacts, and the monster shrinks down, until it is only the size of an average Orc."
+        combat();
     }
 
-}//char set up
+}
+function ElfCity(){
 
-//inventory
-var gameOver = 0;
-var lives = 5;
-var bow = 0;
-var saber = 0;
-var hammer = 0;
-var axe = 0;
-var artifacts = 0;
+}
+function Cohab(){
 
-var enemydamage = 0;
-var enemyHealth = 100;
-var bowupgrade = 0;
-var saberupgrade = 0;
-var axeupgrade = 0;
-var hammerupgrade = 0;
-var pickup = "";
+}
+function OutEast(){
 
-function gameinit(){
-    if (orc === 1)
+}
+function ElfHum(){
+
+}
+function DwarfCap(){
+
+}
+function humCap(){
+
+}
+function CoastC(){
+
+}
+function DamageCalc(Character){
+    var stunChance = 0;
+    var damage = 0;
+    if (Character.race === "orc")
     {
-        //orc start
-        weapon = "warhammer";
+        Character.damage = 15;
     }
-    else if (elf === 1)
+    if (Character.race === "elf")
     {
-        //elf start
-        weapon = "bow";
+        Character.damage = 5;
     }
-    else if (human === 1)
+    if (Character.race === "human")
     {
-        //human start
-        weapon = "saber";
+        Character.damage = 7;
     }
-    else if (dwarf === 1)
+    if (Character.race === "dwarf")
     {
-        //dwarf start
-        weapon = "battleaxe"
+        Character.damage = 12;
     }
-    location = "OC";
-    while (gameOver === 0)
+}
+function removeListener(){
+    var listeners = [setDwarf, setElf, setHuman, setOrc, CharSetup, loc1, proceed, OutWest, end, toBoss, ElfCity, humCap, OutEast, DwarfCap, CoastC, ElfHum];
+    for (i = 0; i <= listeners.length; i++)
     {
-        function damagecalc(bow, saber, axe, hammer){
-            var damage = 0;
-            if (bow = 1 && bowupgrade === 0)
-            {
-                //default elf weapon
-                damage = 5;
-            }
-            if (bow === 1 && bowupgrade === 1)
-            {
-                damage = 8;
-            }
-            else if (axe = true && axeupgrade === 0)
-            {
-                //default dwarf weapon
-                damage = 10;
-            }
-            else if (axe === true && axeupgrade === 1)
-            {
-                damage = 15;
-            }
-            else if (saber === true && saberupgrade === 0)
-            {
-                //default human weapon
-                damage = 7;
-            }
-            else if (saber === true && saberupgrade === 1)
-            {
-                damage = 11;
-            }
-            else if (hammer === true && hammerupgrade === 0)
-            {
-                damage = 13;
-            }
-            else if (hammer === true && hammerupgrade === 1)
-            {
-                damage = 18;
-            }
-            return damage;
+        b1.removeEventListener("Click", listeners[i]);
+        b2.removeEventListener("Click", listeners[i]);
+        b3.removeEventListener("Click", listeners[i]);
+        b4.removeEventListener("Click", listeners[i]);
+    }
+}
+function combat(Enemy, Character){
+    var critChance = 0;
+    var crit = 1.1;//crits do 10% more damage
+    while (hp >= 0 && ehp >=0)
+    {
+        var strength = 0;
+        var miss = 0;
+        var missChance = 0;
+        console.log("Will you use a light or heavy attack?\n1. Light\n2. Heavy\n");
+        //set strength = to user input, 1 is light, 2 is heavy
+        if (strength === 1){
+            damage = damage;
         }
-        
-        function combat(enemydamage, enemyHealth, health){
-            while (health > 0 && enemyHealth > 0)
-            {
-                reset = 0;
-                var damage1 = damagecalc(bow, saber, axe, hammer);
-                //calculating light/heavy attacks
-                //ask user to pick  light or heavy attack
-                var l = 0;//light attack
-                var h = 0;//heavy attack
-                var eMissCalc = 0;
-                var eMiss = 0;
-                var missCalc = 0;
-                var miss = 0;
-                if (l === 1)
-                {
-                    damage1 = damage1;
-                }
-                else if(h === 1)
-                {
-                    //heavy attack does 30% more damage with a 15% chance to miss
-                    missCalc = Math.random(1, 101);
-                    if (missCalc <= 15)
-                    {
-                        miss = 1;
-                    }
-                    else{
-                        damage1 = damage1 * 1.03
-                    }
-                }
-        
-                //determining if an axe or hammer attack will miss
-                if (axe === 1)
-                {
-                    //20% for axe to miss
-                    missCalc = Math.random(1, 6);
-                    if (missCalc === 1)
-                    {
-                        miss = 1;
-                    }
-                }
-                else if (hammer === 1)
-                {
-                    //25% for hammer to miss
-                    missCalc = Math.random(1, 5);
-                    if (missCalc === 1)
-                    {
-                        miss = 1;
-                    }
-                }
-        
-                //dealing damage
-                if (miss === 1)
-                {
-                    //you missed and did no damage
-                    damage1 = 0;
-                }
-                else if (miss === 0){
-                    //you hit and did damage
-                    enemyHealth = enemyHealth - damage1;
-                }
-                //calculate if the enemy did damage
-                //enemy will always have 20% chance to miss
-                eMissCalc = Math.random(1, 6);
-                if (eMissCalc === 1)
-                {
-                    eMiss = 1;
-                    enemydamage = 0;
-                }
-                else{
-                    health = health - enemydamage;
-                }
-                if (enemyHealth <= 0)
-                {
-                    health = 100;
-                    //you win
-                    return reset;
-                    break;
-                }
-                if (health <= 0)
-                {
-                    reset = 1;
-                    heath = 100;
-                    lives--;
-                    return reset;
-                    break;
-                }
-                if (lives === 0)
-                {
-                    gameOver = 1;
-                    break;
-                }
+        else if (strength === 2){
+            missChance = math.Random(1, 4);
+            if(missChance === 1){
+                miss = 1; //attack will miss
+                damage = damage * 1.3;
+            }
+            else{
+                damage = 0;
+                miss = 0;
             }
         }
     }
+    if (hp <= 0)
+    {
+        console.log("you were forced to retreat");
+    }
+    else if (ehp <= 0)
+    {
+        console.log("you defeated the enemy");
+    }
+    return damage;
 }
-
-
-var location = "";
-
-if (location === "HC") //LOCATION IS HUMAN CAPITOL
-{
-    
-}
-else if (location === "DC")//LOCATION IS DWARF CAPITOL
-{
-
-}
-else if (location === "DTOW")//LOCATION IS TRADE POST WEST
-{
-
-}
-else if (location === "HCC")//LOCATION IS COAST CITY
-{
-
-}
-else if (location === "HEV")//LOCATION IS HUMAN/ELF VILLAGE
-{
-
-}
-else if (location === "EC")//LOCATION IS ELF CITY
-{
-
-}
-else if (location === "ECH")//LOCATION IS ELF COHABITATION 
-{
-
-}
-else if (location === "OC")//LOCATION IS ORC CITY
-{
-
-}
-else if (location === "DTOE")//LOCATION IS TRADE POST EAST
-{
-
-}
+GameStart();

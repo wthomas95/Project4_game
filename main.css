@@ -1,9 +1,10 @@
 body{
-    background-color: yellow;
+    background-color: white;
     font-family: 'Nunito Semibold';
     text-align: center;
-    color: white;
+    color: black;
 }
+
 #content{
     display: grid;
     grid-template-columns: repeat(10, 1fr);
@@ -15,49 +16,39 @@ body{
     height: 100vh;
 }
 #content div{
-    background: blue;
+    background-color: white;
     border-style: groove;
     border-width: 5px;
     box-shadow: 5px, 10px, black;
     padding: 30px;
 }
-.inventory{
-    /* width */
+.inventory{ 
     grid-column-start: 1;
-    grid-column-end: 3;
-    /* height */
+    grid-column-end: 3; 
     grid-row-start: 1;
     grid-row-end: 7;
 }
 .game{
-    /* width */
     grid-column-start: 3;
     grid-column-end: 11;
-    /* height */
     grid-row-start: 1;
     grid-row-end: 7;
 }
 .itemStat{
-   /* width */
    grid-column-start: 1;
    grid-column-end: 4;
-   /* height */
    grid-row-start: 7;
    grid-row-end: 10;
 }
 .charStat{
-    /* width */
     grid-column-start: 4;
     grid-column-end: 8;
-    /* height */
     grid-row-start: 7;
-   grid-row-end: 10;
+    grid-row-end: 10;
 }
 .ot{
-    /* width */
     grid-column-start: 8;
     grid-column-end: 11;
-    /* height */
     grid-row-start: 7;
-   grid-row-end: 10;
+    grid-row-end: 10;
 }
