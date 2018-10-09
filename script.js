@@ -1,4 +1,3 @@
-var gameover = 0;
 let Character = {
     race: "",
     upgrade: false,
@@ -12,14 +11,43 @@ let Enemy = {
     hp: 100,
     damage: 0
 } 
+var lives = 5;
+var baseFunc;
+var nextFunc;
+var mugged = 0;
 var b1 = document.getElementById("c1");
 var b2 = document.getElementById("c2");
 var b3 = document.getElementById("c3");
 var b4 = document.getElementById("c4");
 var header = document.getElementById("t");
 var description = document.getElementById("d");
+function removeListener(){
+    var listeners = [setDwarf, setElf, setHuman, setOrc, CharSetup, loc1, proceed, end, stronghold, humCap, humCollect, elfCollect, dwarfCollect, DwarfCap, DwarfThrone, ElfCity, outpost, mugging];
+    for (i = 0; i <= listeners.length; i++)
+    {
+        b1.removeEventListener("Click", listeners[i]);
+        b2.removeEventListener("Click", listeners[i]);
+        b3.removeEventListener("Click", listeners[i]);
+        b4.removeEventListener("Click", listeners[i]);
+    }
+}
 function GameStart(){
+    if (lives > 0){
     prelude();
+    }
+    else{
+        removeListener();
+        header.innerHTML = "GAME OVER";
+        description.innerHTML = "Try again?";
+        b1.innerHTML = "Yes";
+        b2.innerHTML = "No";
+        b3.innerHTML = "";
+        b4.innerHTML = "";
+        b1.addEventListener("click", GameStart);
+        b2.addEventListener("click", endScreen);
+    }
+}
+function endScreen(){
 }
 function prelude(){
     header.innerHTML = "Prelude";
@@ -72,18 +100,184 @@ function loc1(){
     b4.innerHTML = "";
 }
 function proceed(){
-    b1.removeEventListener("click", proceed);
-    b2.removeEventListener("click", end);
-    header.innerHTML = "Stronghold"
+    removeListener();
+    header.innerHTML = "Stronghold";
     description.innerHTML = 'You stand and volunteer for the task, the cheiftain nods, and you leave the chambers, arming yourself as you go to search for the artifacts and fight the monster. As you leave the city, the archaeologist hurries up to you and tells you that you can likely find the artifacts in the human capitol, dwarven capitol, and human coastal city. You thank him for the information and proceed.. Where will you go now?';
     b1.innerHTML = "Western Dwarven Trade Outpost";
     b2.innerHTML = "Out to the Ruins.. Your final challenge awaits";
     b3.innerHTML = "The Elven Capitol";
-    b4.innerHTML = "The Elf/Orc Cohabitation"
-    b1.addEventListener("click", OutWest);
+    b4.innerHTML = "";
+    b1.addEventListener("click", outpost);
     b2.addEventListener("click", toBoss);
     b3.addEventListener("click", ElfCity);
-    b4.addEventListener("click", Cohab);
+}
+function stronghold(){
+    removeListener();
+    header.innerHTML = "Stronghold";
+    description.innerHTML = "Back at the massive orc stronghold. You walk through the gate, and all of the orcs there seem to treat you with some sort of reverence as you pass through";
+    b1.innerHTML = "Dwarf Trade Outpost";
+    b2.innerHTML = "Elf City";
+    b3.innerHTML = "Final Boss.  Your final challenge awaits";
+    b4.innerHTML = "";
+    b1.addEventListener("click", outpost);
+    b2.addEventListener("click", ElfCity);
+    b3.addEventListener("click", toBoss);
+}
+function outpost(){
+    removeListener();
+    header.innerHTML = "Dwarf trade Outpost";
+    description.innerHTML = "A small dwarven outpost for trade between the southern dwarf nation and the rest of the world connects the Orc stronghold, Human capitol, and dwarven Capitol. There doesnt seem to be anything of interest here except roads to continue on."
+    b1.innerHTML = "Human Capitol";
+    b2.innerHTML = "Dwarf Capitol";
+    b3.innerHTML = "Orc Stronghold";
+    b4.innerHTML = "";
+    b1.addEventListener("click", humCap);
+    b1.addEventListener("click", DwarfCap);    
+    b1.addEventListener("click", stronghold);
+}
+function DwarfCap(){
+    removeListener();
+    header.innerHTML = "Dwarf Capitol";
+    description.innerHTML = "You enter the massive, cavernous halls of the dwarven capitol, carved deep within a the great mountain. You talk to a guard who thinks that the court mage of the Dwarf king Hrothgar could help you find an artifact."
+    b1.innerHTML = "Go speak to the mage with regard to the artifact";
+    b2.innerHTML = "Go speak to King Hrothgar";
+    b3.innerHTML = "Leave the city for the trade outpost";
+    b4.innerHTML = "Leave the city for the human capitol";
+    b1.addEventListener("click", dwarfCollect);
+    b1.addEventListener("click", DwarfThrone);
+    b1.addEventListener("click", Outpost);
+    b1.addEventListener("click", humCap);
+}
+function DwarfThrone(){
+    removeListener();
+    header.innerHTML = "King Hrothgar's throne room"
+    if (Character.upgrade == false)
+    {
+        description.innerHTML = "You enter the throne room. An old, but tough looking dwarf with long grey hair and a braided beard sits on the throne and looks down at you. He asks you why you have come for an audience with him, and after hearing of your quest he offers to give you aid. You graciously accept, and he stands and reaches for your weapon. He takes it and softly chants over it for several seconds. As he chants the weapon starts to glow. When he hands it back the glow vanishes. The king smiles and explains that he hopes that his gift will make a difference.\n The power of your weapon has been increased by 50%";
+        Character.upgrade = true;
+    }
+    else {
+        description.innerHTML = "The throne room is empty, only flickering candle light can be seen against the stone walls";
+    }
+    b1.addEventListener("click", DwarfCap);
+    b1.innerHTML = "Return to the main capitol";
+    b2.innerHTML = "";
+    b3.innerHTML = "";
+    b4.innerHTML = "";
+}
+function dwarfCollect(){
+    removeListener();
+    header.innerHTML = "Court Mages Chambers";
+    if (Character.artifacts[0] != 1){
+        description.innerHTML = "When you reach the mage's chambers he waves you off dismissively. But when you explain your mission he looks grave. He takes a small, steel box from his desk and unlocks it with a snap of his fingers. He opens it and gives you the artifact. He explains that he has had this for generations, and that he hoped the need would never come to use it. He wishes you luck on your remaining quest and advises you to visit the king as well if you haven't already";
+        Character.artifacts[0] = 1;
+    }
+    else{
+        description.innerHTML = "The mage seems to have left. Luckily you've already collected the artifact from him";
+    }
+    b1.innerHTML = "Return to the main capitol";
+    b2.innerHTML = "";
+    b3.innerHTML = "";
+    b4.innerHTML = "";
+    b1.addEventListener("click", DwarfCap);
+}
+function humCap(){
+    removeListener();
+    header.innerHTML = "Human Capitol";
+    if (Character.artifacts[1] != 1){
+        description.innerHTML = "Upon entering the city, the archeologist who described the threat at the orc stronghold rushes up to you. He says he was waiting for you to come through so that he could give you one of the artifacts. He asks for you to meet him at his museum when you're ready to collect it.";
+    }
+    else{
+        description.innerHTML = "You enter the human capitol again, in a bit of a rush to collect the remaining artifacts, and hopefully not be too late to stop the monster from escaping";
+    }
+    b1.innerHTML = "Elf Capitol";
+    b2.innerHTML = "Dwarf Capitol";
+    b3.innerHTML = "Museum";
+    b4.innerHTML = "Trade Outpost";
+    b1.addEventListener("click", ElfCity);
+    b2.addEventListener("click", DwarfCap);
+    b3.addEventListener("click", humCollect);
+    b4.addEventListener("click", outpost);
+}
+function humCollect(){
+    removeListener();
+    header.innerHTML = "Human Capitol: Museum";
+    if (Character.artifacts[1] = 0){
+        description.innerHTML = "";
+    }
+    else{
+        description.innerHTML = "";
+    }
+    b1.innerHTML = "Human Capitol: Main City";
+    b2.innerHTML = "";
+    b3.innerHTML = "";
+    b4.innerHTML = "";
+    if (mugged == 0){
+        mugged = 1;
+        b1.addEventListener("click", mugging);
+    }
+    else{
+        b1.addEventListener("click", humCap);
+    }
+}
+function mugging(){
+    removeListener();
+    baseFunc = museum;
+    nextFunc = humCap;
+    header.innerHTML = "Human Capitol: Back Streets";
+    description.innerHTML = "As you navigate through the winding streets of the human capitol, a large mugger jumps out of the shadows, and draws his sword.<br> 'I saw you pocket some sort of gem in that museum' he growls 'better give it to me now'. You cant give him the artifact, so you have no choice but to fight.";
+    b1.innerHTML = "";
+    b2.innerHTML = "";
+    b3.innerHTML = "";
+    b4.innerHTML = "";
+    b1.addEventListener("click", combat);
+}
+function ElfCity(){
+    removeListener();
+    header.innerHTML = "Elf Capitol";
+    if (Character.artifacts[2] != 1){
+        description.innerHTML = "The capitol of the elves seems to blend perfectly into the lush forest that surrounds it. The buildings are all crafted of finely carved wood with the exception of the capitol building itself which is a large marble hall, coverered in ivy and flowers.";
+    }
+    else{
+        description.innerHTML = "Upon reentering the capitol of the elves, you are met by several guards who explain that they have been given orders to supply you with provisions for the rest of your quest. Upon taking what you need you prepare to leave.";
+    }
+    b1.innerHTML = "";
+    b2.innerHTML = "";
+    b3.innerHTML = "";
+    b4.innerHTML = "";
+    b1.addEventListener("click", );
+    b2.addEventListener("click", );
+    b3.addEventListener("click", );
+    b4.addEventListener("click", );
+}
+function elfCollect(){
+    removeListener();
+    header.innerHTML = "";
+    description.innerHTML = "";
+    b1.innerHTML = "";
+    b2.innerHTML = "";
+    b3.innerHTML = "";
+    b4.innerHTML = "";
+    b1.addEventListener("click", );
+    b2.addEventListener("click", );
+    b3.addEventListener("click", );
+    b4.addEventListener("click", );
+}
+function toBoss(){
+    Enemy.name = "Golem of Terror";
+    Enemy.hp = 150;
+    Enemy.damage = 10;
+    header.innerHTML = "Final Boss: <br> The monster stands in your path, frozen by a field of energy. It's glowing eyes glare down at you while its stony figure stands in front of you. Massive boulders make up its body, each suspended several feet apart by glowing orange energy."
+    if (Character.artifacts != [1, 1, 1])
+    {
+        description.innerHTML = "Without the artifacts in your posession, you are immediatly killed by the monster. Your presence without the ability to defeat him released the spell binding him, and he rampages through the land, destroying everything in his path.";
+    }
+    else if (Character.artifacts == [1, 1, 1]){
+        description.innerHTML = "You raise the artifacts and shout. A blinding light flashes between the golem and the artifacts. Massive amounts of orange energy flow from the monster into the artifacts, and the monster shrinks down, until it is only the size of an average Orc."
+        combat();
+        
+    }
+
 }
 function end(){
     header.innerHTML = "The End";
@@ -93,105 +287,79 @@ function end(){
     b3.innerHTML = "";
     b4.innerHTML = "";
 }
-function OutWest(){
-
-}
-function toBoss(){
-    header.innerHTML = "The monster stands in your path, frozen by a field of energy. It's glowing eyes glare down at you while its stony figure stands in front of you. Massive boulders make up its body, each suspended several feet apart by glowing orange energy."
-    if (Character.artifacts != [1, 1, 1])
-    {
-        description.innerHTML = "Without the artifacts in your posession, you are immediatly killed by the monster. Your presence without the ability to defeat him released the spell binding him, and he rampages through the land, destroying everything in his path.";
-    }
-    else if (Character.artifacts == [1, 1, 1]){
-        description.innerHTML = "You raise the artifacts and shout. A blinding light flashes between the golem and the artifacts. Massive amounts of orange energy flow from the monster into the artifacts, and the monster shrinks down, until it is only the size of an average Orc."
-        combat();
-    }
-
-}
-function ElfCity(){
-
-}
-function Cohab(){
-
-}
-function OutEast(){
-
-}
-function ElfHum(){
-
-}
-function DwarfCap(){
-
-}
-function humCap(){
-
-}
-function CoastC(){
-
-}
-function DamageCalc(Character){
-    var stunChance = 0;
-    var damage = 0;
-    if (Character.race === "orc")
-    {
-        Character.damage = 15;
-    }
-    if (Character.race === "elf")
-    {
-        Character.damage = 5;
-    }
-    if (Character.race === "human")
-    {
-        Character.damage = 7;
-    }
-    if (Character.race === "dwarf")
-    {
-        Character.damage = 12;
-    }
-}
-function removeListener(){
-    var listeners = [setDwarf, setElf, setHuman, setOrc, CharSetup, loc1, proceed, OutWest, end, toBoss, ElfCity, humCap, OutEast, DwarfCap, CoastC, ElfHum];
-    for (i = 0; i <= listeners.length; i++)
-    {
-        b1.removeEventListener("Click", listeners[i]);
-        b2.removeEventListener("Click", listeners[i]);
-        b3.removeEventListener("Click", listeners[i]);
-        b4.removeEventListener("Click", listeners[i]);
-    }
-}
-function combat(Enemy, Character){
-    var critChance = 0;
-    var crit = 1.1;//crits do 10% more damage
-    while (hp >= 0 && ehp >=0)
-    {
-        var strength = 0;
-        var miss = 0;
-        var missChance = 0;
-        console.log("Will you use a light or heavy attack?\n1. Light\n2. Heavy\n");
-        //set strength = to user input, 1 is light, 2 is heavy
-        if (strength === 1){
-            damage = damage;
+function DamageCalc(){
+    if (upgrade == 0){
+        if (Character.race === "orc")
+        {
+            Character.damage = 15;
         }
-        else if (strength === 2){
-            missChance = math.Random(1, 4);
-            if(missChance === 1){
-                miss = 1; //attack will miss
-                damage = damage * 1.3;
-            }
-            else{
-                damage = 0;
-                miss = 0;
-            }
+        if (Character.race === "elf")
+        {
+            Character.damage = 5;
+        }
+        if (Character.race === "human")
+        {
+            Character.damage = 7;
+        }
+        if (Character.race === "dwarf")
+        {
+            Character.damage = 12;
         }
     }
-    if (hp <= 0)
+    else if (upgrade == 1)
     {
-        console.log("you were forced to retreat");
+        f (Character.race === "orc")
+        {
+            Character.damage = 15 * 1.5;
+        }
+        if (Character.race === "elf")
+        {
+            Character.damage = 5 * 1.5;
+        }
+        if (Character.race === "human")
+        {
+            Character.damage = 7 * 1.5;
+        }
+        if (Character.race === "dwarf")
+        {
+            Character.damage = 12 * 1.5;
+        } 
     }
-    else if (ehp <= 0)
+}
+function combat(){
+    DamageCalc();
+    var stunChance;
+    var stun = false;
+    while (Enemy.health >= 0 && Character.health >= 0)
     {
-        console.log("you defeated the enemy");
+        if (Character.race == "orc")
+        {
+            stunChance = Math.random(1, 4);
+            if (stunChance == 1) //30% stun chance for orcs
+            {
+                stun = true;
+            }
+            else
+            {
+                stun = false;
+            }
+        }
+        else if (Character.race == "dwarf")
+        {
+            stunChance = Math.random(1, 6); //20% stun chance for dwarfs
+            if (stunChance == 1)
+            {
+                stun = true;
+            }
+            else
+            {
+                stun = false;
+            }
+        }
+        else if (Character.race == "elf")
+        {
+
+        }
     }
-    return damage;
 }
 GameStart();
