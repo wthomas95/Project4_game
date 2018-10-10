@@ -8,12 +8,12 @@ let Character = {
 }
 let Enemy = {
     name: "",
-    hp: 100,
+    health: 100,
     damage: 0
 } 
 var lives = 5;
-var baseFunc;
-var nextFunc;
+var baseFunc = 0;
+var nextFunc = 0;
 var mugged = 0;
 var b1 = document.getElementById("c1");
 var b2 = document.getElementById("c2");
@@ -21,19 +21,40 @@ var b3 = document.getElementById("c3");
 var b4 = document.getElementById("c4");
 var header = document.getElementById("t");
 var description = document.getElementById("d");
+var numOfArtifacts = document.getElementById("c");
+var stun = false;
+function inventory(){
+    if(Character.artifacts == [0, 0, 0]){
+        numOfArtifacts.innerHTML = 'Artifacts:\n 0/3';
+    }
+    else if (Character.artifacts == [1, 0, 0] || Character.artifacts == [0, 1, 0] ||Character.artifacts == [0, 0, 1])
+    {
+        numOfArtifacts.innerHTML = 'Artifacts:\n 1/3';
+    }
+    else if (Character.artifacts == [1, 1, 0] || Character.artifacts == [0, 1, 1] ||Character.artifacts == [1, 0, 1])
+    {
+        numOfArtifacts.innerHTML = 'Artifacts:\n 2/3';
+    }
+    else if (Character.artifacts == [1, 1, 1])
+    {
+        numOfArtifacts.innerHTML = 'Artifacts:\n 3/3, time to return to the stronghold and confront the final boss';
+    }
+}
 function removeListener(){
-    var listeners = [setDwarf, setElf, setHuman, setOrc, CharSetup, loc1, proceed, end, stronghold, humCap, humCollect, elfCollect, dwarfCollect, DwarfCap, DwarfThrone, ElfCity, outpost, mugging];
+    var listeners = [CharSetup, setDwarf, setElf, setHuman, setOrc, loc1, proceed, stronghold, outpost, dwarfCollect, DwarfCap, DwarfThrone, humCap, humCollect, mugging, elfCollect, ElfCity, toBoss, end, DamageCalc, stunCalc, combat];
     for (i = 0; i <= listeners.length; i++)
     {
-        b1.removeEventListener("Click", listeners[i]);
-        b2.removeEventListener("Click", listeners[i]);
-        b3.removeEventListener("Click", listeners[i]);
-        b4.removeEventListener("Click", listeners[i]);
+        b1.removeEventListener("click", listeners[i]);
+        b2.removeEventListener("click", listeners[i]);
+        b3.removeEventListener("click", listeners[i]);
+        b4.removeEventListener("click", listeners[i]);
     }
 }
 function GameStart(){
+    inventory();
     if (lives > 0){
-    prelude();
+        Character.race = "orc";
+        humCap();
     }
     else{
         removeListener();
@@ -132,8 +153,8 @@ function outpost(){
     b3.innerHTML = "Orc Stronghold";
     b4.innerHTML = "";
     b1.addEventListener("click", humCap);
-    b1.addEventListener("click", DwarfCap);    
-    b1.addEventListener("click", stronghold);
+    b2.addEventListener("click", DwarfCap);    
+    b3.addEventListener("click", stronghold);
 }
 function DwarfCap(){
     removeListener();
@@ -144,9 +165,9 @@ function DwarfCap(){
     b3.innerHTML = "Leave the city for the trade outpost";
     b4.innerHTML = "Leave the city for the human capitol";
     b1.addEventListener("click", dwarfCollect);
-    b1.addEventListener("click", DwarfThrone);
-    b1.addEventListener("click", Outpost);
-    b1.addEventListener("click", humCap);
+    b2.addEventListener("click", DwarfThrone);
+    b3.addEventListener("click", outpost);
+    b4.addEventListener("click", humCap);
 }
 function DwarfThrone(){
     removeListener();
@@ -171,6 +192,8 @@ function dwarfCollect(){
     if (Character.artifacts[0] != 1){
         description.innerHTML = "When you reach the mage's chambers he waves you off dismissively. But when you explain your mission he looks grave. He takes a small, steel box from his desk and unlocks it with a snap of his fingers. He opens it and gives you the artifact. He explains that he has had this for generations, and that he hoped the need would never come to use it. He wishes you luck on your remaining quest and advises you to visit the king as well if you haven't already";
         Character.artifacts[0] = 1;
+        console.log(Character.artifacts);
+        inventory();
     }
     else{
         description.innerHTML = "The mage seems to have left. Luckily you've already collected the artifact from him";
@@ -202,18 +225,25 @@ function humCap(){
 function humCollect(){
     removeListener();
     header.innerHTML = "Human Capitol: Museum";
-    if (Character.artifacts[1] = 0){
-        description.innerHTML = "";
+    if (Character.artifacts[1] == 0){
+        description.innerHTML = "The archaeologist goes to a small safe in the corner when you enter, and retrieves an artifact from it. He gives it to you and wishes you luck";
+        Character.artifacts[1] = 1;
+        inventory();
+        console.log(Character.artifacts);
+
     }
     else{
-        description.innerHTML = "";
+        description.innerHTML = "The curator has left the museum and it is empty, luckily you already have your artifact";
     }
     b1.innerHTML = "Human Capitol: Main City";
     b2.innerHTML = "";
     b3.innerHTML = "";
     b4.innerHTML = "";
-    if (mugged == 0){
+    if (mugged === 0){
         mugged = 1;
+        Enemy.name = "mugger";
+        Enemy.health = 100;
+        Enemy.damage = 3;
         b1.addEventListener("click", mugging);
     }
     else{
@@ -221,12 +251,13 @@ function humCollect(){
     }
 }
 function mugging(){
+    console.log("hello");
     removeListener();
-    baseFunc = museum;
+    baseFunc = humCollect;
     nextFunc = humCap;
     header.innerHTML = "Human Capitol: Back Streets";
     description.innerHTML = "As you navigate through the winding streets of the human capitol, a large mugger jumps out of the shadows, and draws his sword.<br> 'I saw you pocket some sort of gem in that museum' he growls 'better give it to me now'. You cant give him the artifact, so you have no choice but to fight.";
-    b1.innerHTML = "";
+    b1.innerHTML = "Continue";
     b2.innerHTML = "";
     b3.innerHTML = "";
     b4.innerHTML = "";
@@ -241,27 +272,33 @@ function ElfCity(){
     else{
         description.innerHTML = "Upon reentering the capitol of the elves, you are met by several guards who explain that they have been given orders to supply you with provisions for the rest of your quest. Upon taking what you need you prepare to leave.";
     }
-    b1.innerHTML = "";
-    b2.innerHTML = "";
-    b3.innerHTML = "";
-    b4.innerHTML = "";
-    b1.addEventListener("click", );
-    b2.addEventListener("click", );
-    b3.addEventListener("click", );
-    b4.addEventListener("click", );
+    b1.innerHTML = "Orc Stronghold";
+    b2.innerHTML = "Human Capitol";
+    b3.innerHTML = "Elven Treasury";
+    b1.addEventListener("click", stronghold);
+    b2.addEventListener("click", humCap);
+    b3.addEventListener("click", elfCollect);
 }
 function elfCollect(){
     removeListener();
-    header.innerHTML = "";
-    description.innerHTML = "";
-    b1.innerHTML = "";
+    header.innerHTML = "Elven treasury";
+    if (Character.artifacts[2] != 1)
+    {
+        description.innerHTML = "You enter the elven treasury and talk to the elf running the treasury. He gives you an artifact, explaining he had been instructed to give it to you when you came";
+        Character.artifacts[2] = 1;
+        inventory();
+        console.log(Character.artifacts);
+
+    }
+    else if (Character.artifacts[2] == 1){
+        description.innerHTML = "The room is empty, you have already collected the artifact here, time to leave";
+    }
+    b1.innerHTML = "Return to the main capitol";
     b2.innerHTML = "";
     b3.innerHTML = "";
     b4.innerHTML = "";
-    b1.addEventListener("click", );
-    b2.addEventListener("click", );
-    b3.addEventListener("click", );
-    b4.addEventListener("click", );
+    b1.addEventListener("click", ElfCity);
+
 }
 function toBoss(){
     Enemy.name = "Golem of Terror";
@@ -277,7 +314,6 @@ function toBoss(){
         combat();
         
     }
-
 }
 function end(){
     header.innerHTML = "The End";
@@ -288,7 +324,7 @@ function end(){
     b4.innerHTML = "";
 }
 function DamageCalc(){
-    if (upgrade == 0){
+    if (Character.upgrade == 0){
         if (Character.race === "orc")
         {
             Character.damage = 15;
@@ -306,7 +342,7 @@ function DamageCalc(){
             Character.damage = 12;
         }
     }
-    else if (upgrade == 1)
+    else if (Character.upgrade == 1)
     {
         f (Character.race === "orc")
         {
@@ -326,12 +362,9 @@ function DamageCalc(){
         } 
     }
 }
-function combat(){
-    DamageCalc();
+function stunCalc(){
     var stunChance;
-    var stun = false;
-    while (Enemy.health >= 0 && Character.health >= 0)
-    {
+    stun = false;
         if (Character.race == "orc")
         {
             stunChance = Math.random(1, 4);
@@ -356,10 +389,71 @@ function combat(){
                 stun = false;
             }
         }
-        else if (Character.race == "elf")
+    return stun;
+}
+function combat(){
+    var elfcount = 0;
+    var turns = 0;
+    header.innerHTML = `vs. ${Enemy.name}`
+    function heavy()
+    {
+        var miss = Math.random(1, 4);
+        if (miss == 1)
         {
-
+            Character.damage = 0;
         }
+        else{
+            Character.damage = Character.damage * 1.5
+        }
+    }
+    function light()
+    {
+        Character.damage = Character.damage;
+    }
+    while(Enemy.health > 0 && Character.health > 0)
+    {
+        console.log("in the loop");
+        if(turns == 0)
+        {
+            description.innerHTML = "Reminder: Heavy attacks do more damage but havea 30% chance to miss ,light attacks are guaranteed to hit, but won't do as much damage";
+            b1.innerHTML = "Heavy Attack";
+            b2.innerHTML = "Light Attack";
+            b3.innerHTML = "";
+            b4.innerHTML = "";
+            b1.addEventListener("click", heavy);
+            b2.addEventListener("click", light)
+        }
+        else
+        {
+            console.log(`Last turn on turn ${turns}, you did ${Character.damage} to the ${Enemy.name}. ${Enemy.name} did ${Enemy.damage} back to you. \nYou have ${Character.health} remaining, ${Enemy.name} has ${Enemy.health} remaining`);
+            description.innerHTML(`Last turn on turn ${turns}, you did ${Character.damage} to the ${Enemy.name}. ${Enemy.name} did ${Enemy.damage} back to you. \nYou have ${Character.health} remaining, ${Enemy.name} has ${Enemy.health} remaining`);
+            b1.innerHTML = "Heavy Attack";
+            b2.innerHTML = "Light Attack";
+            b3.innerHTML = "";
+            b4.innerHTML = "";
+            b1.addEventListener("click", heavy);
+            b2.addEventListener("click", light)
+        }
+    }
+    if (Enemy.health <= 0)
+    {
+        header.innerHTML = "Victory";
+        description.innerHTML = "You have defeated your enemy and can proceed";
+        b1.innerHTML = "Continue";
+        b2.innerHTML = "";
+        b3.innerHTML = "";
+        b4.innerHTML = "";
+        b1.addEventListener("click", nextFunc);
+    }
+    else if (Character.health <= 0)
+    {
+        header.innerHTML = "Defeat";
+        description.innerHTML = "You have been defeated and must retreat";
+        b1.innerHTML = "Continue";
+        b2.innerHTML = "";
+        b3.innerHTML = "";
+        b4.innerHTML = "";
+        b1.addEventListener("click", prevFunc);
     }
 }
 GameStart();
