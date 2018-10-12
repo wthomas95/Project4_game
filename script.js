@@ -360,6 +360,15 @@ function turn(){
             }
             turns++;
         }
+      else if(Enemy.health <= 0){
+        header.innerHTML=`Victory against ${Enemy.name}`;
+        description.innerHTML="You heal your wounds and continue";
+        Character.health = 100;
+      }
+      else if(Character.health <= 0)
+        {
+          endscreen();
+        }
         b1.innerHTML = "Continue";
         b2.innerHTML = "";
         b3.innerHTML = "";
@@ -457,29 +466,30 @@ function elfCollect(){
 function toBoss(){
     removeListener();
     Enemy.name = "Golem of Terror";
-    Enemy.hp = 100;
+    Enemy.health = 100;
     Enemy.damage = 10;
     nextFunc = victory;
     turns = 0;
     elfCount = 0;
-    header.innerHTML = "Final Boss: <br> The monster stands in your path, frozen by a field of energy. It's glowing eyes glare down at you while its stony figure stands in front of you. Massive boulders make up its body, each suspended several feet apart by glowing orange energy."
-    if (Character.artifacts == [1, 1, 1])
+    console.log(`${Character.artifacts}`)
+    header.innerHTML = "Final Boss: <br> The monster stands in your path, frozen by a field of energy. It's glowing eyes glare down at you while its stony figure stands in front of you. Massive boulders make up its         body, each suspended several feet apart by glowing orange energy."
+    if (Character.artifacts[0] == 1 && Character.artifacts[1] == 1 && Character.artifacts[2] == 1)
     {
-        description.innerHTML = "Without the artifacts in your posession, you are immediatly killed by the monster. Your presence without the ability to defeat him released the spell binding him, and he rampages through the land, destroying everything in his path.";
-        b1.innerHTML = "Defeat";
-        b2.innerHTML = "";
-        b3.innerHTML = "";
-        b4.innerHTML = "";
-        b1.addEventListener("click", endScreen);
-    }
-    else if (Character.artifacts != [1, 1, 1])
-    {
-        description.innerHTML = "You raise the artifacts and shout. A blinding light flashes between the golem and the artifacts. Massive amounts of orange energy flow from the monster into the artifacts, and the monster shrinks down, until it is only the size of an average Orc."
+      description.innerHTML = "You raise the artifacts and shout. A blinding light flashes between the golem and the artifacts. Massive amounts of orange energy flow from the monster into the artifacts, and the monster       shrinks down, until it is only the size of an average Orc.";
         b1.innerHTML = "Attack";
         b2.innerHTML = "";
         b3.innerHTML = "";
         b4.innerHTML = "";
         b1.addEventListener("click", turn);
+    }
+    else
+    {
+        description.innerHTML = "Without the artifacts in your posession, you are immediatly killed by the monster. Your presence without the ability to defeat him released the spell binding him, and he rampages               through the land, destroying everything in his path.";
+        b1.innerHTML = "Defeat";
+        b2.innerHTML = "";
+        b3.innerHTML = "";
+        b4.innerHTML = "";
+        b1.addEventListener("click", endscreen);
     }
 }
 function end(){
