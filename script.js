@@ -15,6 +15,8 @@ var lives = 5;
 var baseFunc = 0;
 var nextFunc = 0;
 var mugged = 0;
+var light = false;
+var heavy = false;
 var b1 = document.getElementById("c1");
 var b2 = document.getElementById("c2");
 var b3 = document.getElementById("c3");
@@ -22,7 +24,6 @@ var b4 = document.getElementById("c4");
 var header = document.getElementById("t");
 var description = document.getElementById("d");
 var numOfArtifacts = document.getElementById("c");
-var stun = false;
 function inventory(){
     if(Character.artifacts == [0, 0, 0]){
         numOfArtifacts.innerHTML = 'Artifacts:\n 0/3';
@@ -41,7 +42,7 @@ function inventory(){
     }
 }
 function removeListener(){
-    var listeners = [CharSetup, setDwarf, setElf, setHuman, setOrc, loc1, proceed, stronghold, outpost, dwarfCollect, DwarfCap, DwarfThrone, humCap, humCollect, mugging, elfCollect, ElfCity, toBoss, end, DamageCalc, stunCalc, combat];
+    var listeners = [CharSetup, setDwarf, setElf, setHuman, setOrc, loc1, proceed, stronghold, outpost, dwarfCollect, DwarfCap, DwarfThrone, humCap, humCollect, elfCollect, ElfCity, toBoss, end, victory, endScreen, GameStart];
     for (i = 0; i <= listeners.length; i++)
     {
         b1.removeEventListener("click", listeners[i]);
@@ -51,24 +52,39 @@ function removeListener(){
     }
 }
 function GameStart(){
+    Character.artifacts = [0, 0, 0];
     inventory();
-    if (lives > 0){
-        Character.race = "orc";
-        humCap();
+    removeListener();
+    prelude();
+}
+function dealt(){
+    if (light == true){
+        description.innerHTML = "You will use a light atack"
     }
-    else{
-        removeListener();
-        header.innerHTML = "GAME OVER";
-        description.innerHTML = "Try again?";
-        b1.innerHTML = "Yes";
-        b2.innerHTML = "No";
-        b3.innerHTML = "";
-        b4.innerHTML = "";
-        b1.addEventListener("click", GameStart);
-        b2.addEventListener("click", endScreen);
+    else if (heavy == true)
+    {
+        description.innerHTML = `You will use a heavy attack`;
     }
 }
 function endScreen(){
+    removeListener();
+    header.innerHTML = "Defeat";
+    description.innerHTML = "Try again?";
+    b1.innerHTML = "Try again";
+    b2.innerHTML = "";
+    b3.innerHTML = "";
+    b4.innerHTML = "";
+    b1.addEventListener("click", GameStart);
+}
+function victory(){
+    removeListener();
+    header.innerHTML = "Victory";
+    description.innerHTML = "Congratulations on defeating the beast and saving the land. Would you like to play again?";
+    b1.innerHTML = "Save the world again";
+    b2.innerHTML = "";
+    b3.innerHTML = "";
+    b4.innerHTML = "";
+    b1.addEventListener("click", GameStart);
 }
 function prelude(){
     header.innerHTML = "Prelude";
@@ -226,42 +242,146 @@ function humCollect(){
     removeListener();
     header.innerHTML = "Human Capitol: Museum";
     if (Character.artifacts[1] == 0){
-        description.innerHTML = "The archaeologist goes to a small safe in the corner when you enter, and retrieves an artifact from it. He gives it to you and wishes you luck";
+        description.innerHTML = "The archaeologist goes to a small safe in the corner when you enter, and retrieves an artifact from it. He gives it to you and wishes you luck. Upon leaving the building, you are confronted by a mugger who demands the artifact. You prepare to defend yourself";
         Character.artifacts[1] = 1;
         inventory();
         console.log(Character.artifacts);
-
+        b1.innerHTML = "Human Capitol: Main City";
+        b2.innerHTML = "";
+        b3.innerHTML = "";
+        b4.innerHTML = "";
+        if (mugged === 0){
+            mugged = 1;
+            Enemy.name = "mugger";
+            Enemy.health = 100;
+            Enemy.damage = 3;
+            if (Character.upgrade == 0){
+                if (Character.race === "orc")
+                {
+                    Character.damage = 15;
+                }
+                if (Character.race === "elf")
+                {
+                    Character.damage = 5;
+                }
+                if (Character.race === "human")
+                {
+                    Character.damage = 7;
+                }
+                if (Character.race === "dwarf")
+                {
+                    Character.damage = 12;
+                }
+            }
+            else if (Character.upgrade == 1)
+            {
+                f (Character.race === "orc")
+                {
+                    Character.damage = 15 * 1.5;
+                }
+                if (Character.race === "elf")
+                {
+                    Character.damage = 5 * 1.5;
+                }
+                if (Character.race === "human")
+                {
+                    Character.damage = 7 * 1.5;
+                }
+                if (Character.race === "dwarf")
+                {
+                    Character.damage = 12 * 1.5;
+                } 
+            }
+            while (Character.health > 0 && Enemy.health > 0){   
+                var turns = 0;
+                var elfCount = 0;
+                removeListener();
+                header.innerHTML = `Vs. ${Enemy.name}`;
+                if (Character.race == "orc"){
+                    stunChance = Math.random(1, 4);
+                    if (stunChance == 1) //30% stun chance for orcs
+                    {  
+                        Character.damage = 0;
+                        stun = true;
+                    }
+                    else
+                    {
+                        stun = false;
+                        Character.damage*=1.5;
+                    }
+                }
+                else if (Character.race == "dwarf"){
+                    stunChance = Math.random(1, 6); //20% stun chance for dwarfs
+                    if (stunChance == 1)
+                    {
+                        Character.damage = 0;
+                        stun = true;
+                    }
+                    else
+                    {
+                        stun = false;
+                        Character.damage*=1.3;
+                    }
+                }
+                if (turns == 0 && Character.race ==  "elf"){
+                    description.innerHTML = "You face off against your opponent and prepare to fight";
+                    Enemy.health -= Character.damage;
+                    turns++;
+                    elfCount++;
+                }
+                else if (turns == 0){
+                    description.innerHTML = "You face off against your opponent and prepare to fight";
+                    Enemy.health -= Character.damage;
+                    Character.health -= Enemy.damage;
+                    turns++;
+                }
+                else if (turns > 0 && elfCount < 3){
+                    Enemy.health -= Character.damage;
+                    description.innerHTML = `On turn ${turns}, you dealt ${Character.damage} to ${Enemy.name}. ${Enemy.name} couldn't hit you because you kept your range. \nYou: ${Character.health} remaining
+                    \n${Enemy.name}: ${Enemy.health} remaining`;
+                    turns++;
+                    elfCount++;
+                }
+                else if (turns > 0 && elfCount >= 3){
+                    Enemy.health -= Character.damage;
+                    Character.health -= Enemy.damage;
+                    description.innerHTML = `On turn ${turns}, you dealt ${Character.damage} to ${Enemy.name}. ${Enemy.name} dealt ${Enemy.damage} to you. \nYou: ${Character.health} remaining
+                    \n${Enemy.name}: ${Enemy.health} remaining`;
+                    turns++;
+                }
+            }
+            if (Enemy.health <= 0){
+                removeListener();
+                header.innerHTML = "Victory";
+                description.innerHTML = "You are victorious over your opponent "
+                b1.innerHTML = "Continue";
+                b2.innerHTML = "";
+                b3.innerHTML = "";
+                b4.innerHTML = "";
+                b1.addEventListener("click", humCap);
+            }
+            else if (Character.health <= 0)
+            {
+                b1.removeEventListener("click", Character.damage = Character.damage * 1.5);
+                b2.removeEventListener("click", Character.damage = Character.damage);
+                header.innerHTML = "Defeat";
+                description.innerHTML = "You are defeated by your opponent "
+                b1.innerHTML = "Continue";
+                b2.innerHTML = "";
+                b3.innerHTML = "";
+                b4.innerHTML = "";
+                b1.addEventListener("click", endScreen);
+            }
+        }
+        else{
+            b1.addEventListener("click", humCap);
+        }
     }
     else{
+        header.innerHTML = "Museum";
         description.innerHTML = "The curator has left the museum and it is empty, luckily you already have your artifact";
     }
-    b1.innerHTML = "Human Capitol: Main City";
-    b2.innerHTML = "";
-    b3.innerHTML = "";
-    b4.innerHTML = "";
-    if (mugged === 0){
-        mugged = 1;
-        Enemy.name = "mugger";
-        Enemy.health = 100;
-        Enemy.damage = 3;
-        b1.addEventListener("click", mugging);
-    }
-    else{
-        b1.addEventListener("click", humCap);
-    }
-}
-function mugging(){
-    console.log("hello");
-    removeListener();
-    baseFunc = humCollect;
-    nextFunc = humCap;
-    header.innerHTML = "Human Capitol: Back Streets";
-    description.innerHTML = "As you navigate through the winding streets of the human capitol, a large mugger jumps out of the shadows, and draws his sword.<br> 'I saw you pocket some sort of gem in that museum' he growls 'better give it to me now'. You cant give him the artifact, so you have no choice but to fight.";
-    b1.innerHTML = "Continue";
-    b2.innerHTML = "";
-    b3.innerHTML = "";
-    b4.innerHTML = "";
-    b1.addEventListener("click", combat);
+
 }
 function ElfCity(){
     removeListener();
@@ -301,18 +421,142 @@ function elfCollect(){
 
 }
 function toBoss(){
+    removeListener();
     Enemy.name = "Golem of Terror";
-    Enemy.hp = 150;
+    Enemy.hp = 100;
     Enemy.damage = 10;
     header.innerHTML = "Final Boss: <br> The monster stands in your path, frozen by a field of energy. It's glowing eyes glare down at you while its stony figure stands in front of you. Massive boulders make up its body, each suspended several feet apart by glowing orange energy."
-    if (Character.artifacts != [1, 1, 1])
+    if (Character.artifacts == [1, 1, 1])
     {
         description.innerHTML = "Without the artifacts in your posession, you are immediatly killed by the monster. Your presence without the ability to defeat him released the spell binding him, and he rampages through the land, destroying everything in his path.";
+        b1.innerHTML = "Defeat";
+        b2.innerHTML = "";
+        b3.innerHTML = "";
+        b4.innerHTML = "";
+        b1.addEventListener("click", endScreen);
     }
-    else if (Character.artifacts == [1, 1, 1]){
+    else if (Character.artifacts != [1, 1, 1])
+    {
         description.innerHTML = "You raise the artifacts and shout. A blinding light flashes between the golem and the artifacts. Massive amounts of orange energy flow from the monster into the artifacts, and the monster shrinks down, until it is only the size of an average Orc."
-        combat();
-        
+        if (Character.upgrade == 0){
+            if (Character.race === "orc")
+            {
+                Character.damage = 15;
+            }
+            if (Character.race === "elf")
+            {
+                Character.damage = 5;
+            }
+            if (Character.race === "human")
+            {
+                Character.damage = 7;
+            }
+            if (Character.race === "dwarf")
+            {
+                Character.damage = 12;
+            }
+        }
+        else if (Character.upgrade == 1)
+        {
+            (Character.race === "orc")
+            {
+                Character.damage = 15 * 1.5;
+            }
+            if (Character.race === "elf")
+            {
+                Character.damage = 5 * 1.5;
+            }
+            if (Character.race === "human")
+            {
+                Character.damage = 7 * 1.5;
+            }
+            if (Character.race === "dwarf")
+            {
+                Character.damage = 12 * 1.5;
+            } 
+        }
+        while (Character.health > 0 && Enemy.health > 0)
+        {   var turns = 0;
+            var elfCount = 0;
+            removeListener();
+            header.innerHTML = `Vs. ${Enemy.name}`;
+            if (Character.race == "orc")
+        {
+            stunChance = Math.random(1, 4);
+            if (stunChance == 1) //30% stun chance for orcs
+            {  
+                Character.damage = 0;
+                stun = true;
+            }
+            else
+            {
+                stun = false;
+                Character.damage*=1.5;
+            }
+            }
+            else if (Character.race == "dwarf")
+            {
+                stunChance = Math.random(1, 6); //20% stun chance for dwarfs
+                if (stunChance == 1)
+                {
+                    Character.damage = 0;
+                    stun = true;
+                }
+                else
+                {
+                    stun = false;
+                    Character.damage*=1.3;
+                }
+            }
+            if (turns == 0 && Character.race ==  "elf"){
+                description.innerHTML = "You face off against your opponent and prepare to fight";
+                Enemy.health -= Character.damage;
+                turns++;
+                elfCount++;
+            }
+            else if (turns == 0)
+            {
+                description.innerHTML = "You face off against your opponent and prepare to fight";
+                Enemy.health -= Character.damage;
+                Character.health -= Enemy.damage;
+                turns++;
+            }
+            else if (turns > 0 && elfCount < 3)
+            {
+                Enemy.health -= Character.damage;
+                description.innerHTML = `On turn ${turns}, you dealt ${Character.damage} to ${Enemy.name}. ${Enemy.name} couldn't hit you because you kept your range. \nYou: ${Character.health} remaining
+                \n${Enemy.name}: ${Enemy.health} remaining`;
+                turns++;
+                elfCount++;
+            }
+            else if (turns > 0 && elfCount >= 3)
+            {
+                Enemy.health -= Character.damage;
+                Character.health -= Enemy.damage;
+                description.innerHTML = `On turn ${turns}, you dealt ${Character.damage} to ${Enemy.name}. ${Enemy.name} dealt ${Enemy.damage} to you. \nYou: ${Character.health} remaining
+                \n${Enemy.name}: ${Enemy.health} remaining`;
+                turns++;
+            }
+        }
+        if (Enemy.health <= 0){
+            header.innerHTML = "Victory";
+            description.innerHTML = "You are victorious over your opponent, the land is saved by your actions. Congratulations "
+            b1.innerHTML = "Continue";
+            b2.innerHTML = "";
+            b3.innerHTML = "";
+            b4.innerHTML = "";
+            b1.addEventListener("click", victory);
+        }
+        else if (Character.health <= 0)
+        {
+            header.innerHTML = "Defeat";
+            description.innerHTML = "You are defeated by your opponent "
+            b1.innerHTML = "Continue";
+            b2.innerHTML = "";
+            b3.innerHTML = "";
+            b4.innerHTML = "";
+            b1.addEventListener("click", endScreen);
+        }       
     }
 }
 function end(){
@@ -323,137 +567,5 @@ function end(){
     b3.innerHTML = "";
     b4.innerHTML = "";
 }
-function DamageCalc(){
-    if (Character.upgrade == 0){
-        if (Character.race === "orc")
-        {
-            Character.damage = 15;
-        }
-        if (Character.race === "elf")
-        {
-            Character.damage = 5;
-        }
-        if (Character.race === "human")
-        {
-            Character.damage = 7;
-        }
-        if (Character.race === "dwarf")
-        {
-            Character.damage = 12;
-        }
-    }
-    else if (Character.upgrade == 1)
-    {
-        f (Character.race === "orc")
-        {
-            Character.damage = 15 * 1.5;
-        }
-        if (Character.race === "elf")
-        {
-            Character.damage = 5 * 1.5;
-        }
-        if (Character.race === "human")
-        {
-            Character.damage = 7 * 1.5;
-        }
-        if (Character.race === "dwarf")
-        {
-            Character.damage = 12 * 1.5;
-        } 
-    }
-}
-function stunCalc(){
-    var stunChance;
-    stun = false;
-        if (Character.race == "orc")
-        {
-            stunChance = Math.random(1, 4);
-            if (stunChance == 1) //30% stun chance for orcs
-            {
-                stun = true;
-            }
-            else
-            {
-                stun = false;
-            }
-        }
-        else if (Character.race == "dwarf")
-        {
-            stunChance = Math.random(1, 6); //20% stun chance for dwarfs
-            if (stunChance == 1)
-            {
-                stun = true;
-            }
-            else
-            {
-                stun = false;
-            }
-        }
-    return stun;
-}
-function combat(){
-    var elfcount = 0;
-    var turns = 0;
-    header.innerHTML = `vs. ${Enemy.name}`
-    function heavy()
-    {
-        var miss = Math.random(1, 4);
-        if (miss == 1)
-        {
-            Character.damage = 0;
-        }
-        else{
-            Character.damage = Character.damage * 1.5
-        }
-    }
-    function light()
-    {
-        Character.damage = Character.damage;
-    }
-    while(Enemy.health > 0 && Character.health > 0)
-    {
-        console.log("in the loop");
-        if(turns == 0)
-        {
-            description.innerHTML = "Reminder: Heavy attacks do more damage but havea 30% chance to miss ,light attacks are guaranteed to hit, but won't do as much damage";
-            b1.innerHTML = "Heavy Attack";
-            b2.innerHTML = "Light Attack";
-            b3.innerHTML = "";
-            b4.innerHTML = "";
-            b1.addEventListener("click", heavy);
-            b2.addEventListener("click", light)
-        }
-        else
-        {
-            console.log(`Last turn on turn ${turns}, you did ${Character.damage} to the ${Enemy.name}. ${Enemy.name} did ${Enemy.damage} back to you. \nYou have ${Character.health} remaining, ${Enemy.name} has ${Enemy.health} remaining`);
-            description.innerHTML(`Last turn on turn ${turns}, you did ${Character.damage} to the ${Enemy.name}. ${Enemy.name} did ${Enemy.damage} back to you. \nYou have ${Character.health} remaining, ${Enemy.name} has ${Enemy.health} remaining`);
-            b1.innerHTML = "Heavy Attack";
-            b2.innerHTML = "Light Attack";
-            b3.innerHTML = "";
-            b4.innerHTML = "";
-            b1.addEventListener("click", heavy);
-            b2.addEventListener("click", light)
-        }
-    }
-    if (Enemy.health <= 0)
-    {
-        header.innerHTML = "Victory";
-        description.innerHTML = "You have defeated your enemy and can proceed";
-        b1.innerHTML = "Continue";
-        b2.innerHTML = "";
-        b3.innerHTML = "";
-        b4.innerHTML = "";
-        b1.addEventListener("click", nextFunc);
-    }
-    else if (Character.health <= 0)
-    {
-        header.innerHTML = "Defeat";
-        description.innerHTML = "You have been defeated and must retreat";
-        b1.innerHTML = "Continue";
-        b2.innerHTML = "";
-        b3.innerHTML = "";
-        b4.innerHTML = "";
-        b1.addEventListener("click", prevFunc);
-    }
-}
+
 GameStart();
